@@ -28,10 +28,41 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
     return model;
 }
 
-Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
+Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
+    float z_near, float z_far)
 {
-    // TODO: Copy-paste your implementation from the previous assignment.
-    Eigen::Matrix4f projection;
+    // 定义透视与投影变换矩阵
+    Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
+    Eigen::Matrix4f persp_to_ortho = Eigen::Matrix4f::Identity();
+    Eigen::Matrix4f orthoscale = Eigen::Matrix4f::Identity();
+    Eigen::Matrix4f orthopos = Eigen::Matrix4f::Identity();
+    Eigen::Matrix4f rotate = Eigen::Matrix4f::Identity();
+
+    // 立方体投影相关变量
+    float theta = eye_fov / 180 * MY_PI;
+    float t = z_near * tan(theta / 2);
+    float r = t * aspect_ratio;
+    float l = -r;
+    float b = -t;
+
+    // 计算投影变换矩阵
+    persp_to_ortho << z_near, 0, 0, 0,
+        0, z_near, 0, 0,
+        0, 0, z_near + z_far, -z_near * z_far,
+        0, 0, 1, 0;
+    orthopos << 1, 0, 0, -(r + l) / 2,
+        0, 1, 0, -(t + b) / 2,
+        0, 0, 1, -(z_near + z_far) / 2,
+        0, 0, 0, 1;
+    orthoscale << 2 / (r - l), 0, 0, 0,
+        0, 2 / (t - b), 0, 0,
+        0, 0, 2 / (z_near - z_far), 0,
+        0, 0, 0, 1;
+    rotate << 1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, -1, 0,
+        0, 0, 0, 1;
+    projection = orthoscale * orthopos * persp_to_ortho * rotate * projection;
 
     return projection;
 }
