@@ -12,12 +12,12 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
     Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
 
     Eigen::Matrix4f translate;
-    translate << 1,0,0,-eye_pos[0],
-                 0,1,0,-eye_pos[1],
-                 0,0,1,-eye_pos[2],
-                 0,0,0,1;
+    translate << 1, 0, 0, -eye_pos[0],
+        0, 1, 0, -eye_pos[1],
+        0, 0, 1, -eye_pos[2],
+        0, 0, 0, 1;
 
-    view = translate*view;
+    view = translate * view;
 
     return view;
 }
@@ -31,21 +31,19 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
     float z_near, float z_far)
 {
-    // 定义透视与投影变换矩阵
     Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
     Eigen::Matrix4f persp_to_ortho = Eigen::Matrix4f::Identity();
     Eigen::Matrix4f orthoscale = Eigen::Matrix4f::Identity();
     Eigen::Matrix4f orthopos = Eigen::Matrix4f::Identity();
     Eigen::Matrix4f rotate = Eigen::Matrix4f::Identity();
 
-    // 立方体投影相关变量
-    float theta = eye_fov / 180 * MY_PI;
-    float t = z_near * tan(theta / 2);
+    // variable definition
+    float theta = eye_fov / 180.0 * MY_PI;
+    float t = z_near * std::tan(theta / 2);
     float r = t * aspect_ratio;
     float l = -r;
     float b = -t;
 
-    // 计算投影变换矩阵
     persp_to_ortho << z_near, 0, 0, 0,
         0, z_near, 0, 0,
         0, 0, z_near + z_far, -z_near * z_far,
@@ -56,13 +54,14 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
         0, 0, 0, 1;
     orthoscale << 2 / (r - l), 0, 0, 0,
         0, 2 / (t - b), 0, 0,
-        0, 0, 2 / (z_near - z_far), 0,
+        0, 0, 2 / (z_far - z_near), 0,
         0, 0, 0, 1;
     rotate << 1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, -1, 0,
         0, 0, 0, 1;
     projection = orthoscale * orthopos * persp_to_ortho * rotate * projection;
+    //projection = orthoscale * orthopos * persp_to_ortho  * projection;
 
     return projection;
 }
@@ -81,34 +80,34 @@ int main(int argc, const char** argv)
 
     rst::rasterizer r(700, 700);
 
-    Eigen::Vector3f eye_pos = {0,0,5};
+    Eigen::Vector3f eye_pos = { 0,0,5 };
 
 
     std::vector<Eigen::Vector3f> pos
-            {
-                    {2, 0, -2},
-                    {0, 2, -2},
-                    {-2, 0, -2},
-                    {3.5, -1, -5},
-                    {2.5, 1.5, -5},
-                    {-1, 0.5, -5}
-            };
+    {
+            {2, 0, -2},
+            {0, 2, -2},
+            {-2, 0, -2},
+            {3.5, -1, -5},
+            {2.5, 1.5, -5},
+            {-1, 0.5, -5}
+    };
 
     std::vector<Eigen::Vector3i> ind
-            {
-                    {0, 1, 2},
-                    {3, 4, 5}
-            };
+    {
+            {0, 1, 2},
+            {3, 4, 5}
+    };
 
     std::vector<Eigen::Vector3f> cols
-            {
-                    {217.0, 238.0, 185.0},
-                    {217.0, 238.0, 185.0},
-                    {217.0, 238.0, 185.0},
-                    {185.0, 217.0, 238.0},
-                    {185.0, 217.0, 238.0},
-                    {185.0, 217.0, 238.0}
-            };
+    {
+            {217.0, 238.0, 185.0},
+            {217.0, 238.0, 185.0},
+            {217.0, 238.0, 185.0},
+            {185.0, 217.0, 238.0},
+            {185.0, 217.0, 238.0},
+            {185.0, 217.0, 238.0}
+    };
 
     auto pos_id = r.load_positions(pos);
     auto ind_id = r.load_indices(ind);
@@ -135,7 +134,7 @@ int main(int argc, const char** argv)
         return 0;
     }
 
-    while(key != 27)
+    while (key != 27)
     {
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
